@@ -3,73 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>እድል ቢንጎ - Lucky Bingo</title>
+    <title>Zema Bingo</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- የላይኛው መረጃ እና የላይቭ ስክሪን -->
-    <div class="header-container">
-        <h1>እድል ቢንጎ (Lucky Bingo)</h1>
-        <div id="timer-box">የቀረው ጊዜ: <span id="timer">49</span> ሰከንድ</div>
-        <div id="live-screen">የተጠራ ቁጥር: <span id="called-number">--</span></div>
+
+    <!-- 1ኛ ደረጃ: የካርቴላ መምረጫ ስክሪን -->
+    <div id="selection-screen" class="screen active">
+        <!-- Top Info Bar -->
+        <div class="top-bar">
+            <div>Stake: <span id="play-stake">10 Birr</span></div>
+            <div>Main: <span id="main-wallet-select">0 Birr</span></div>
+            <div>Play: <span id="play-wallet-select">10 Birr</span></div>
+            <div class="timer-box">Timer: <span id="countdown">49</span>s</div>
+        </div>
+
+        <h3 class="title">ካርቴላ ይምረጡ (እስከ 3 ካርቴላ)</h3>
+        <div class="selected-count-text">የተመረጡ: <span id="selected-count">0</span>/3</div>
+        
+        <!-- ከ 1 - 600 ካርቴላዎች መረጫ Grid -->
+        <div id="cartela-grid" class="grid-container"></div>
     </div>
 
-    <!-- የቢንጎ 5x5 ካርቴላ ማሳያ -->
-    <div id="selected-cartela-display" class="hidden">
-        <h3>የእርስዎ ካርቴላ (5x5)</h3>
-        <div id="bingo-grid" class="grid-5x5"></div>
+    <!-- 4ኛ ደረጃ: የጨዋታው ዋና ስክሪን (ቢንጎ መጥሪያ) -->
+    <div id="game-screen" class="screen">
+        <div class="top-bar">
+            <div>Game ID: #<span id="game-id">0001</span></div>
+            <div>Main: <span id="main-wallet-game">0 Birr</span></div>
+            <div>Play: <span id="play-wallet-game">10 Birr</span></div>
+        </div>
+
+        <!-- 5ኛ ደረጃ: የቀጥታ ቁጥር መጥሪያ ትንሽ ስክሪን -->
+        <div class="live-called-screen">
+            <h4>የተጠራ ቁጥር</h4>
+            <div id="current-called-number">-</div>
+        </div>
+
+        <!-- የቢንጎ ቦርድ (የተጠሩ ቁጥሮች ዝርዝር ማሳያ) -->
+        <div class="bingo-board">
+            <div class="board-column"><div class="letter header">B</div><div id="col-B" class="numbers-list"></div></div>
+            <div class="board-column"><div class="letter header">I</div><div id="col-I" class="numbers-list"></div></div>
+            <div class="board-column"><div class="letter header">N</div><div id="col-N" class="numbers-list"></div></div>
+            <div class="board-column"><div class="letter header">G</div><div id="col-G" class="numbers-list"></div></div>
+            <div class="board-column"><div class="letter header">O</div><div id="col-O" class="numbers-list"></div></div>
+        </div>
+
+        <!-- የተጠቃሚው 5x5 ካርቴላ ማሳያ -->
+        <h3 class="title">የእርስዎ ካርቴላ</h3>
+        <div id="my-cartela-container"></div>
     </div>
 
-    <!-- 1. የጨዋታ ገጽ (Game Tab) -->
-    <div id="game-tab" class="tab-content">
-        <h2>ካርቴላ ይምረጡ (እስከ 5 ካርቴላ)</h2>
-        <div id="cartela-list" class="cartela-container">
-            <!-- 1-600 ቁጥሮች እዚህ ይወጣሉ -->
+    <!-- ሌሎች የኒቪጌሽን ስክሪኖች -->
+    <div id="wallet-screen" class="screen">
+        <h3 class="title">የኪስ ቦርሳ (Wallet)</h3>
+        <div class="wallet-card">
+            <p>Main Wallet: <strong><span id="wallet-main-val">0 Birr</span></strong></p>
+            <p>Play Wallet: <strong><span id="wallet-play-val">10 Birr</span></strong></p>
         </div>
     </div>
 
-    <!-- 2. የዋሌት ገጽ (Wallet Tab) -->
-    <div id="wallet-tab" class="tab-content hidden">
-        <h2>የእርስዎ የገንዘብ ቦርሳ (Wallet) 💳</h2>
-        <div class="wallet-box">
-            <div class="wallet-item">
-                <h3>Main Wallet (ዋና ሂሳብ)</h3>
-                <p id="main-wallet-amount">10.00 ብር</p>
-            </div>
-            <div class="wallet-item">
-                <h3>Play Wallet (መጫወቻ ሂሳብ)</h3>
-                <p id="play-wallet-amount">0.00 ብር</p>
-            </div>
-        </div>
+    <div id="history-screen" class="screen">
+        <h3 class="title">የጨዋታ ታሪክ (History)</h3>
+        <p class="empty-text">የተጫወቱት ጨዋታ የለም።</p>
+    </div>
 
-        <!-- የቴሌብር ብር ማስገቢያ (Deposit) ማሳያ -->
-        <div class="deposit-box">
-            <h3>ገንዘብ ለማስገባት (Deposit)</h3>
-            <p>እባክዎ በቴሌብር (telebirr) ወደዚህ ስልክ ቁጥር ገንዘብ ያስገቡ፡</p>
-            <div class="phone-number">0928361886</div>
-            <small>⚠️ ገንዘብ ካስገቡ በኋላ ደረሰኝ ለሳፖርት ይላኩ።</small>
+    <div id="profile-screen" class="screen">
+        <h3 class="title">የእኔ ማህደር (Profile)</h3>
+        <div class="profile-card">
+            <p>Telegram ID: <span id="prof-tg-id">12345678</span></p>
+            <p>Telephone: <span id="prof-phone">0928361886</span></p>
+            <p>Main Wallet: <span id="prof-main-wallet">0 Birr</span></p>
+            <p>Play Wallet: <span id="prof-play-wallet">10 Birr</span></p>
         </div>
     </div>
 
-    <!-- 3. የታሪክ ገጽ (History Tab) -->
-    <div id="history-tab" class="tab-content hidden">
-        <h2>የጨዋታ ታሪክ (History) 📜</h2>
-        <p>ምንም አይነት ታሪክ የለም</p>
-    </div>
-
-    <!-- 4. የፕሮፋይል ገጽ (Profile Tab) -->
-    <div id="profile-tab" class="tab-content hidden">
-        <h2>የአባልነት መገለጫ (Profile) 👤</h2>
-        <p>የተጠቃሚ መረጃ...</p>
-    </div>
-
-    <!-- የታችኛው የኔቪጌชั่น ባር -->
-    <div class="navbar">
-        <button id="nav-game" class="nav-item active" onclick="switchTab('game')">🎮 Game</button>
-        <button id="nav-wallet" class="nav-item" onclick="switchTab('wallet')">💳 Wallet</button>
-        <button id="nav-history" class="nav-item" onclick="switchTab('history')">📜 History</button>
-        <button id="nav-profile" class="nav-item" onclick="switchTab('profile')">👤 Profile</button>
-    </div>
+    <!-- 2ኛ ደረጃ: Navigation Bar -->
+    <nav class="navbar">
+        <button class="nav-item active" onclick="switchScreen('game')">Game</button>
+        <button class="nav-item" onclick="switchScreen('wallet')">Wallet</button>
+        <button class="nav-item" onclick="switchScreen('history')">History</button>
+        <button class="nav-item" onclick="switchScreen('profile')">Profile</button>
+    </nav>
 
     <script src="app.js"></script>
 </body>

@@ -1,146 +1,172 @@
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #1a1a1a;
-    color: white;
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: #ffffff;
     margin: 0;
+    padding-bottom: 70px;
+    box-sizing: border-box;
+}
+
+.screen {
+    display: none;
     padding: 15px;
-    padding-bottom: 90px;
-    text-align: center;
 }
 
-.header-container {
-    background-color: #2c2c2c;
+.screen.active {
+    display: block;
+}
+
+/* Top Bar Styling */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    background-color: #1e1e1e;
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 8px;
     margin-bottom: 15px;
-}
-
-#timer-box {
-    font-size: 18px;
-    color: #ff4757;
+    font-size: 14px;
     font-weight: bold;
 }
 
-#live-screen {
-    font-size: 24px;
-    background: #000;
-    color: #2ed573;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 5px;
-    border: 2px solid #2ed573;
+.timer-box {
+    color: #ff5252;
 }
 
-.cartela-container {
+.title {
+    text-align: center;
+    color: #4caf50;
+}
+
+.selected-count-text {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* 1 - 600 የካርቴላ መረጫ ሳጥኖች (ረዘም/Taller እንዲሉ ተደርጓል) */
+.grid-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    max-height: 350px;
+    gap: 10px;
+    max-height: 400px;
     overflow-y: auto;
-    background: #222;
-    padding: 10px;
-    border-radius: 8px;
+    padding: 5px;
 }
 
 .cartela-box {
-    background-color: #3a3a3a;
-    padding: 15px 5px;
-    border-radius: 5px;
+    background-color: #2c2c2c;
+    border: 2px solid #444;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
     cursor: pointer;
-    font-weight: bold;
-    transition: 0.3s;
+    height: 75px; /* ረዘም እንዲል የተደረገ ቁመት */
+    transition: background 0.3s;
 }
 
+/* ሲመረጥ ቀለሙ እንዲቀየር */
 .cartela-box.selected {
-    background-color: #ffa500;
-    color: black;
-    transform: scale(1.05);
+    background-color: #4caf50;
+    border-color: #81c784;
+    color: #000;
 }
 
-.wallet-box {
-    background: #2c2c2c;
-    padding: 15px;
-    border-radius: 10px;
-}
-
-.wallet-item {
-    background: #111;
-    padding: 12px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    border-left: 5px solid #ffa500;
-}
-
-.wallet-item p {
-    font-size: 22px;
-    color: #2ed573;
-    margin: 5px 0 0 0;
-    font-weight: bold;
-}
-
-.deposit-box {
-    background: #1e272e;
-    border: 2px dashed #ffa500;
-    padding: 15px;
-    border-radius: 10px;
-    margin-top: 15px;
-}
-
-.phone-number {
-    font-size: 26px;
-    color: #ffa500;
-    font-weight: bold;
-    letter-spacing: 2px;
-    margin: 10px 0;
-    background: #000;
-    padding: 10px;
-    border-radius: 5px;
-    display: inline-block;
-}
-
-.grid-5x5 {
+/* 5x5 ቢንጎ ካርቴላ ማሳያ */
+.bingo-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 5px;
-    max-width: 300px;
-    margin: 10px auto;
-    background: white;
-    padding: 5px;
-    border-radius: 5px;
+    margin-top: 15px;
 }
 
-.grid-cell {
-    background: #333;
-    color: white;
-    padding: 10px;
+.bingo-cell {
+    background-color: #252525;
+    border: 1px solid #555;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: bold;
-    border-radius: 3px;
 }
 
+/* ቢንጎ መጥሪያ ትንሽ ስክሪን */
+.live-called-screen {
+    background-color: #1a237e;
+    border: 3px solid #3f51b5;
+    border-radius: 10px;
+    text-align: center;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+#current-called-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #ffeb3b;
+}
+
+/* የቢንጎ ቦርድ (B-I-N-G-O ኮለሞች) */
+.bingo-board {
+    display: flex;
+    justify-content: space-between;
+    background-color: #1e1e1e;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.board-column {
+    width: 18%;
+    text-align: center;
+}
+
+.letter.header {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ff9800;
+    margin-bottom: 5px;
+}
+
+.numbers-list {
+    font-size: 12px;
+    color: #bbb;
+    min-height: 40px;
+    word-wrap: break-word;
+}
+
+/* Card layout configurations */
+.wallet-card, .profile-card {
+    background-color: #1e1e1e;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 5px solid #4caf50;
+    margin-top: 15px;
+}
+
+/* Bottom Navigation Bar */
 .navbar {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    background: #111;
     display: flex;
-    justify-content: space-around;
-    padding: 15px 0;
-    border-top: 2px solid #333;
-    z-index: 100;
+    background-color: #1e1e1e;
+    border-top: 1px solid #333;
+    height: 60px;
 }
 
 .nav-item {
+    flex: 1;
     background: none;
     border: none;
-    color: #888;
-    font-size: 16px;
+    color: #aaa;
+    font-size: 14px;
+    font-weight: bold;
     cursor: pointer;
 }
 
 .nav-item.active {
-    color: #ffa500;
-    font-weight: bold;
+    color: #4caf50;
+    border-top: 3px solid #4caf50;
 }
-
-.hidden { display: none !important; }
