@@ -1,9 +1,26 @@
+// የቴሌግራም ዌብ አፕ መረጃን ማያያዝ
+const tg = window.Telegram.WebApp;
+tg.expand(); // ዌብ አፑን ሙሉ ስክሪን ማድረግ
+
+let tgId = tg.initDataUnsafe?.user?.id || 999999;
+let tgUsername = tg.initDataUnsafe?.user?.username || "Zema Player";
+
 let selectedCartelas = [];
 let countdownVal = 49;
 let timerInterval = null;
 let gameId = 1;
+let calledNumbersList = [];
+let myCartelasData = {}; // የተጫዋቹን ካርቴላ ቁጥሮች መያዣ
 
-// ገጾችን ለመቀያየር
+// የዋሌት እና ፕሮፋይል መረጃን መሙላት
+function updateWalletUI() {
+    document.querySelectorAll('.main-wallet-val').forEach(el => el.innerText = "0 Birr");
+    document.querySelectorAll('.play-wallet-val').forEach(el => el.innerText = "10 Birr");
+    
+    document.getElementById('prof-tg-id').innerText = tgId;
+    document.getElementById('prof-username').innerText = tgUsername;
+}
+
 function switchScreen(screenName) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -22,7 +39,7 @@ function switchScreen(screenName) {
     }
 }
 
-// 1 - 600 ካርቴላዎችን ወደ grid መፍጠር
+// 1 - 600 የካርቴላ ምርጫ መፍጠሪያ
 const gridContainer = document.getElementById('cartela-grid');
 for (let i = 1; i <= 600; i++) {
     const box = document.createElement('div');
@@ -32,7 +49,6 @@ for (let i = 1; i <= 600; i++) {
     gridContainer.appendChild(box);
 }
 
-// ካርቴላ መምረጫ ተግባር (ማክሲመም 3)
 function toggleCartela(id, element) {
     if (selectedCartelas.includes(id)) {
         selectedCartelas = selectedCartelas.filter(item => item !== id);
@@ -48,12 +64,10 @@ function toggleCartela(id, element) {
     document.getElementById('selected-count').innerText = selectedCartelas.length;
 }
 
-// የካውንትዳውን ታይመር መጀመር
 function startTimer() {
     timerInterval = setInterval(() => {
         countdownVal--;
         document.getElementById('countdown').innerText = countdownVal;
-        
         if (countdownVal <= 0) {
             clearInterval(timerInterval);
             goToGameScreen();
@@ -61,50 +75,54 @@ function startTimer() {
     }, 1000);
 }
 
-// ታይመሩ ሲያልቅ ወደ ዋናው ጨዋታ ገጽ ማስተላለፊያ
 function goToGameScreen() {
     document.getElementById('selection-screen').classList.remove('active');
     document.getElementById('game-screen').classList.add('active');
-    
-    // የጨዋታ መለያ ቁጥር ማሳያ (Game ID format: 0001, 0002...)
     document.getElementById('game-id').innerText = String(gameId).padStart(4, '0');
     
-    // ለተጠቃሚው የ 5x5 ካርቴላ ማሳያ መፍጠር
     generateMyCartela();
-    
-    // የቁጥሮች ጥሪ መጀመር
     startCallingBingoNumbers();
 }
 
-// 5x5 የቢንጎ ካርቴላ ማመንጫ
+// 5x5 ካርቴላ ማመንጫ እና ማሳያ
 function generateMyCartela() {
     const container = document.getElementById('my-cartela-container');
-    container.innerHTML = ''; 
+    container.innerHTML = '';
     
-    if(selectedCartelas.length === 0) {
-        container.innerHTML = "<p style='text-align:center;'>የተመረጠ ካርቴላ የለም።</p>";
+    if (selectedCartelas.length === 0) {
+        container.innerHTML = "<p style='text-align:center;color:#ff5252;'>ምንም ካርቴላ አልመረጡም! ተመልካች ነዎት።</p>";
         return;
     }
 
-    selectedCartelas.forEach(num => {
+    selectedCartelas.forEach(cId => {
         const title = document.createElement('h4');
-        title.innerText = ካርቴላ #${num};
+        title.innerText = ካርቴላ #${cId};
         container.appendChild(title);
 
         const grid = document.createElement('div');
         grid.className = 'bingo-grid';
+        grid.id = cartela-board-${cId};
 
-        // 5x5 ራንደም ቁጥሮችን መሙላት (በህጉ መሠረት)
+        myCartelasData[cId] = [];
+
         for (let row = 0; row < 5; row++) {
+            myCartelasData[cId][row] = [];
             for (let col = 0; col < 5; col++) {
-                const cell = document.createElement('div');
+				const cell = document.createElement('div');
                 cell.className = 'bingo-cell';
+                
+                let val;
                 if (row === 2 && col === 2) {
-                    cell.innerText = "FREE";
-                    cell.style.backgroundColor = "#ff9800";
+                    val = "FREE";
+                    cell.innerText = val;
+                    cell.classList.add('marked'); // FREE ሴል ሁልጊዜ የተፈረመ ነው
                 } else {
-                    cell.innerText = getRandomBingoNumber(col);
+                    val = getRandomBingoNumber(col);
+                    cell.innerText = val;
                 }
+                
+                cell.id = cell-${cId}-${row}-${col};
+                myCartelasData[cId][row][col] = { value: val, marked: (val === "FREE") };
                 grid.appendChild(cell);
             }
         }
@@ -117,38 +135,81 @@ function getRandomBingoNumber(colIndex) {
     const max = min + 14;
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-// የቢንጎ ቁጥሮች መጥሪያ ማሽን (በየ 3 ሰከንዱ ቁጥር ይጠራል)
+
+// አውቶማቲክ የቁጥር ጥሪ እና አውቶ-ማርኪንግ (Auto-Marking)
 function startCallingBingoNumbers() {
-    let allNumbers = [];
-    for(let i = 1; i <= 75; i++) allNumbers.push(i);
-    // ማስተርጎም/ማዘዋወር (Shuffle)
-    allNumbers.sort(() => Math.random() - 0.5);
+    let allNumbers = Array.from({length: 75}, (_, i) => i + 1);
+    allNumbers.sort(() => Math.random() - 0.5); // ሹፍል ማድረግ
 
     let callIndex = 0;
     const callInterval = setInterval(() => {
-        if (callIndex >= allNumbers.length) {
+        if (callIndex >= allNumbers.length || countdownVal > 0) {
             clearInterval(callInterval);
             return;
         }
 
         const currentNum = allNumbers[callIndex];
-        let letter = '';
-        if (currentNum <= 15) letter = 'B';
-        else if (currentNum <= 30) letter = 'I';
-        else if (currentNum <= 45) letter = 'N';
-        else if (currentNum <= 60) letter = 'G';
-        else letter = 'O';
-
-        // የላይኛው ትንሽ ስክሪን ላይ ማሳየት
+        calledNumbersList.push(currentNum);
+        
+        let letter = currentNum <= 15 ? 'B' : currentNum <= 30 ? 'I' : currentNum <= 45 ? 'N' : currentNum <= 60 ? 'G' : 'O';
+        
         document.getElementById('current-called-number').innerText = ${letter} - ${currentNum};
+        document.getElementById(col-${letter}).innerText +=  ${currentNum};
 
-        // በየ አምዱ (Column) ዝርዝር ላይ ቁጥሩን መጨመር
-        const colDiv = document.getElementById(col-${letter});
-        colDiv.innerText +=  ${currentNum};
+        // የተጠራው ቁጥር በተጫዋቹ ካርቴላ ላይ ካለ መፈረም (Mark ማድረግ)
+        checkAndMarkNumbers(currentNum);
 
         callIndex++;
     }, 3000); // በየ 3 ሰከንዱ አዲስ ቁጥር ይጠራል
 }
 
-// ጨዋታውን በራስ-ሰር አስጀምር
+// ቁጥሩን ፈልጎ የመሰረዝ (Mark) ህግ
+function checkAndMarkNumbers(num) {
+    selectedCartelas.forEach(cId => {
+        for (let r = 0; r < 5; r++) {
+            for (let c = 0; c < 5; c++) {
+                if (myCartelasData[cId][r][c].value === num) {
+                    myCartelasData[cId][r][c].marked = true;
+                    const cellElement = document.getElementById(cell-${cId}-${r}-${c});
+                    if (cellElement) cellElement.classList.add('marked');
+                    
+                    // ማሸነፉን ማረጋገጥ
+                    checkBingoWin(cId);
+                }
+            }
+        }
+    });
+}
+
+// የቢንጎ ማሸነፊያ ህግ (ሮው፣ ኮለም ወይም ዲያጎናል ሲሞላ)
+function checkBingoWin(cId) {
+    let data = myCartelasData[cId];
+    
+    // አግድም (Rows) መፈተሽ
+    for(let r=0; r<5; r++) {
+        if(data[r].every(cell => cell.marked)) triggerWin(cId);
+    }
+    // ቁልቁል (Columns) መፈተሽ
+    for(let c=0; c<5; c++) {
+        let colWin = true;
+        for(let r=0; r<5; r++) { if(!data[r][c].marked) colWin = false; }
+        if(colWin) triggerWin(cId);
+    }
+}
+
+function triggerWin(cId) {
+    alert(🎉 እንኳን ደስ አለዎት! ካርቴላ #${cId} ቢንጎ (BINGO) ሆኗል!);
+    document.getElementById('history-list').innerHTML = <p style='color:#00e676;'>🎮 Game ID #${String(gameId).padStart(4, '0')} - ካርቴላ #${cId} አሸንፏል!</p>;
+}
+
+function mockDeposit() {
+    let amt = document.getElementById('deposit-amount').value;
+    if(amt > 0) {
+        alert(${amt} Birr በ Chapa በኩል በስኬት ተሞልቷል!);
+        document.getElementById('deposit-amount').value = '';
+    }
+}
+
+// ማስጀመሪያ
+updateWalletUI();
 startTimer();

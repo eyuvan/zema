@@ -1,53 +1,38 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #121212;
     color: #ffffff;
     margin: 0;
-    padding-bottom: 70px;
+    padding-bottom: 80px;
     box-sizing: border-box;
 }
 
-.screen {
-    display: none;
-    padding: 15px;
-}
+.screen { display: none; padding: 15px; }
+.screen.active { display: block; }
 
-.screen.active {
-    display: block;
-}
-
-/* Top Bar Styling */
 .top-bar {
     display: flex;
     justify-content: space-between;
     background-color: #1e1e1e;
-    padding: 10px;
+    padding: 12px;
     border-radius: 8px;
     margin-bottom: 15px;
     font-size: 14px;
     font-weight: bold;
+    border-bottom: 2px solid #4caf50;
 }
 
-.timer-box {
-    color: #ff5252;
-}
+.timer-box { color: #ff5252; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: 0.5; } }
 
-.title {
-    text-align: center;
-    color: #4caf50;
-}
+.title { text-align: center; color: #4caf50; }
+.selected-count-text { text-align: center; margin-bottom: 10px; color: #aaa; }
 
-.selected-count-text {
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-/* 1 - 600 የካርቴላ መረጫ ሳጥኖች (ረዘም/Taller እንዲሉ ተደርጓል) */
 .grid-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
-    max-height: 400px;
+    max-height: 380px;
     overflow-y: auto;
     padding: 5px;
 }
@@ -61,112 +46,90 @@ body {
     justify-content: center;
     font-weight: bold;
     cursor: pointer;
-    height: 75px; /* ረዘም እንዲል የተደረገ ቁመት */
-    transition: background 0.3s;
+    height: 75px; /* ረዘም ያሉ ሳጥኖች */
+    font-size: 16px;
 }
 
-/* ሲመረጥ ቀለሙ እንዲቀየር */
 .cartela-box.selected {
     background-color: #4caf50;
     border-color: #81c784;
     color: #000;
 }
 
-/* 5x5 ቢንጎ ካርቴላ ማሳያ */
+/* ቢንጎ 5x5 ካርቴላ */
 .bingo-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 5px;
-    margin-top: 15px;
+    gap: 6px;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    background-color: #1e1e1e;
+    padding: 10px;
+    border-radius: 8px;
 }
 
 .bingo-cell {
-    background-color: #252525;
+    background-color: #2b2b2b;
     border: 1px solid #555;
-    height: 50px;
+    height: 55px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
+    font-size: 16px;
+    transition: all 0.3s ease;
 }
 
-/* ቢንጎ መጥሪያ ትንሽ ስክሪን */
+/* 🎯 ቁጥሩ ሲገኝ የሚለጠፍ ምልክት (Marked Number) */
+.bingo-cell.marked {
+    background-color: #d32f2f !important;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 0 8px #f44336;
+}
+
 .live-called-screen {
     background-color: #1a237e;
-    border: 3px solid #3f51b5;
+    border: 2px solid #3f51b5;
     border-radius: 10px;
     text-align: center;
-    padding: 15px;
+    padding: 10px;
     margin-bottom: 15px;
 }
+.live-called-screen h4 { margin: 5px 0; color: #bbb; }
+#current-called-number { font-size: 38px; font-weight: bold; color: #ffeb3b; }
 
-#current-called-number {
-    font-size: 36px;
-    font-weight: bold;
-    color: #ffeb3b;
-}
-
-/* የቢንጎ ቦርድ (B-I-N-G-O ኮለሞች) */
 .bingo-board {
     display: flex;
     justify-content: space-between;
     background-color: #1e1e1e;
     padding: 10px;
     border-radius: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
+.board-column { width: 18%; text-align: center; }
+.letter.header { font-size: 20px; font-weight: bold; color: #ff9800; }
+.numbers-list { font-size: 12px; color: #00e676; min-height: 30px; word-break: break-all; }
 
-.board-column {
-    width: 18%;
-    text-align: center;
-}
-
-.letter.header {
-    font-size: 20px;
-    font-weight: bold;
-    color: #ff9800;
-    margin-bottom: 5px;
-}
-
-.numbers-list {
-    font-size: 12px;
-    color: #bbb;
-    min-height: 40px;
-    word-wrap: break-word;
-}
-
-/* Card layout configurations */
-.wallet-card, .profile-card {
+.wallet-card, .profile-card, .deposit-box {
     background-color: #1e1e1e;
     padding: 15px;
     border-radius: 8px;
-    border-left: 5px solid #4caf50;
     margin-top: 15px;
+    border: 1px solid #333;
 }
 
-/* Bottom Navigation Bar */
+.deposit-box input {
+    width: 80%; padding: 10px; border-radius: 5px; border: none; margin-right: 10px;
+}
+.deposit-box button {
+    padding: 10px 15px; background-color: #4caf50; border: none; color: white; font-weight: bold; border-radius: 5px; cursor: pointer;
+}
+
 .navbar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    display: flex;
-    background-color: #1e1e1e;
-    border-top: 1px solid #333;
-    height: 60px;
+    position: fixed; bottom: 0; left: 0; width: 100%; display: flex; background-color: #1e1e1e; border-top: 1px solid #333; height: 65px;
 }
-
 .nav-item {
-    flex: 1;
-    background: none;
-    border: none;
-    color: #aaa;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
+    flex: 1; background: none; border: none; color: #aaa; font-size: 14px; font-weight: bold; cursor: pointer;
 }
-
-.nav-item.active {
-    color: #4caf50;
-    border-top: 3px solid #4caf50;
-}
+.nav-item.active { color: #4caf50; border-top: 4px solid #4caf50; }

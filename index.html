@@ -5,41 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zema Bingo</title>
     <link rel="stylesheet" href="style.css">
+    <!-- የቴሌግራም ስክሪፕት ትክክለኛ መረጃ ለማንበብ -->
+    <script src="https://telegram.org"></script>
 </head>
 <body>
 
-    <!-- 1ኛ ደረጃ: የካርቴላ መምረጫ ስክሪን -->
+    <!-- የካርቴላ መምረጫ ስክሪን -->
     <div id="selection-screen" class="screen active">
-        <!-- Top Info Bar -->
         <div class="top-bar">
             <div>Stake: <span id="play-stake">10 Birr</span></div>
-            <div>Main: <span id="main-wallet-select">0 Birr</span></div>
-            <div>Play: <span id="play-wallet-select">10 Birr</span></div>
+            <div>Main: <span class="main-wallet-val">0 Birr</span></div>
+            <div>Play: <span class="play-wallet-val">10 Birr</span></div>
             <div class="timer-box">Timer: <span id="countdown">49</span>s</div>
         </div>
 
         <h3 class="title">ካርቴላ ይምረጡ (እስከ 3 ካርቴላ)</h3>
         <div class="selected-count-text">የተመረጡ: <span id="selected-count">0</span>/3</div>
-        
-        <!-- ከ 1 - 600 ካርቴላዎች መረጫ Grid -->
         <div id="cartela-grid" class="grid-container"></div>
     </div>
 
-    <!-- 4ኛ ደረጃ: የጨዋታው ዋና ስክሪን (ቢንጎ መጥሪያ) -->
+    <!-- የጨዋታው ዋና ስክሪን (ቢንጎ መጥሪያ) -->
     <div id="game-screen" class="screen">
         <div class="top-bar">
             <div>Game ID: #<span id="game-id">0001</span></div>
-            <div>Main: <span id="main-wallet-game">0 Birr</span></div>
-            <div>Play: <span id="play-wallet-game">10 Birr</span></div>
+            <div>Main: <span class="main-wallet-val">0 Birr</span></div>
+            <div>Play: <span class="play-wallet-val">10 Birr</span></div>
         </div>
 
-        <!-- 5ኛ ደረጃ: የቀጥታ ቁጥር መጥሪያ ትንሽ ስክሪን -->
         <div class="live-called-screen">
             <h4>የተጠራ ቁጥር</h4>
             <div id="current-called-number">-</div>
         </div>
 
-        <!-- የቢንጎ ቦርድ (የተጠሩ ቁጥሮች ዝርዝር ማሳያ) -->
         <div class="bingo-board">
             <div class="board-column"><div class="letter header">B</div><div id="col-B" class="numbers-list"></div></div>
             <div class="board-column"><div class="letter header">I</div><div id="col-I" class="numbers-list"></div></div>
@@ -48,36 +45,45 @@
             <div class="board-column"><div class="letter header">O</div><div id="col-O" class="numbers-list"></div></div>
         </div>
 
-        <!-- የተጠቃሚው 5x5 ካርቴላ ማሳያ -->
-        <h3 class="title">የእርስዎ ካርቴላ</h3>
+        <h3 class="title">የእርስዎ ካርቴላዎች</h3>
         <div id="my-cartela-container"></div>
     </div>
 
-    <!-- ሌሎች የኒቪጌሽን ስክሪኖች -->
+    <!-- ኪስ ቦርሳ (Wallet) ስክሪን -->
     <div id="wallet-screen" class="screen">
         <h3 class="title">የኪስ ቦርሳ (Wallet)</h3>
         <div class="wallet-card">
-            <p>Main Wallet: <strong><span id="wallet-main-val">0 Birr</span></strong></p>
-            <p>Play Wallet: <strong><span id="wallet-play-val">10 Birr</span></strong></p>
+            <p>Main Wallet (ዋና ሂሳብ): <strong><span class="main-wallet-val">0 Birr</span></strong></p>
+            <p>Play Wallet (የመጫወቻ): <strong><span class="play-wallet-val">10 Birr</span></strong></p>
+        </div>
+        <div class="deposit-box">
+            <h4>በ Chapa ገንዘብ ይሙሉ</h4>
+            <input type="number" id="deposit-amount" placeholder="የብር መጠን ያስገቡ">
+            <button onclick="mockDeposit()">ብር ሙሉ</button>
         </div>
     </div>
 
+    <!-- የታሪክ ገጽ -->
     <div id="history-screen" class="screen">
         <h3 class="title">የጨዋታ ታሪክ (History)</h3>
-        <p class="empty-text">የተጫወቱት ጨዋታ የለም።</p>
+        <div id="history-list" class="history-card">
+            <p class="empty-text">የተጫወቱት ጨዋታ ታሪክ እዚህ ይዘረዘራል።</p>
+        </div>
     </div>
 
+    <!-- ፕሮፋይል ስክሪን -->
     <div id="profile-screen" class="screen">
         <h3 class="title">የእኔ ማህደር (Profile)</h3>
         <div class="profile-card">
-            <p>Telegram ID: <span id="prof-tg-id">12345678</span></p>
-            <p>Telephone: <span id="prof-phone">0928361886</span></p>
-            <p>Main Wallet: <span id="prof-main-wallet">0 Birr</span></p>
-            <p>Play Wallet: <span id="prof-play-wallet">10 Birr</span></p>
+            <p>Telegram ID: <strong id="prof-tg-id">በመጫን ላይ...</strong></p>
+            <p>የተጫዋች ስም: <strong id="prof-username">በመጫን ላይ...</strong></p>
+            <p>Telephone: <strong id="prof-phone">0928361886</strong></p>
+            <p>Main Wallet: <strong class="main-wallet-val">0 Birr</strong></p>
+            <p>Play Wallet: <strong class="play-wallet-val">10 Birr</strong></p>
         </div>
     </div>
 
-    <!-- 2ኛ ደረጃ: Navigation Bar -->
+    <!-- የኒቪጌሽን ባር -->
     <nav class="navbar">
         <button class="nav-item active" onclick="switchScreen('game')">Game</button>
         <button class="nav-item" onclick="switchScreen('wallet')">Wallet</button>
