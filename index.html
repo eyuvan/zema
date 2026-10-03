@@ -3,36 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zema Bingo - መምረጫ ገጽ</title>
+    <title>Zema Bingo - ጨዋታ</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- የካርቴላ መምረጫ ስክሪን -->
+    <!-- 1ኛ. የካርቴላ መምረጫ ስክሪን -->
     <div id="selection-screen" class="screen active">
-        
-        <!-- 3ኛ. የላይኛው መረጃ ሰሌዳ (Top Info Bar) -->
         <div class="top-bar">
-            <div>Play Stake: <span id="play-stake">10 Birr</span></div>
-            <div>Main Wallet: <span id="main-wallet">0 Birr</span></div>
-            <div>Play Wallet: <span id="play-wallet">10 Birr</span></div>
+            <div>Play Stake: <span>10 Birr</span></div>
+            <div>Main Wallet: <span>0 Birr</span></div>
+            <div>Play Wallet: <span>10 Birr</span></div>
             <div class="timer-box">Timer: <span id="countdown">49</span>s</div>
         </div>
 
-        <!-- መሪ ርዕስ እና የተመረጡት ብዛት መቆጣጠሪያ -->
-        <h3 class="title">ካርቴላ ይምረጡ (እስከ 3 ካርቴላ)</h3>
+        <h4 class="title">ካርቴላ ይምረጡ (እስከ 3 ካርቴላ)</h4>
         <div class="selected-count-text">የተመረጡ ካርቴላዎች: <span id="selected-count">0</span>/3</div>
-        
-        <!-- 1ኛ. ከ 1 - 600 ካርቴላዎች መረጫ Grid ሰሌዳ -->
         <div id="cartela-grid" class="grid-container"></div>
     </div>
 
-    <!-- 2ኛ. የታችኛው Navigation Bar -->
+    <!-- 4ኛ. የጨዋታው ዋና ስክሪን (Game Screen) -->
+    <div id="game-screen" class="screen">
+        <div class="top-bar">
+            <!-- Game ID መቁጠሪያ -->
+            <div>Game ID: #<span id="game-id">0001</span></div>
+            <div>Main Wallet: <span>0 Birr</span></div>
+            <div>Play Wallet: <span>10 Birr</span></div>
+        </div>
+
+        <!-- 5ኛ. የቀጥታ ቁጥር መጥሪያ ትንሽ ስክሪን -->
+        <div class="live-called-screen">
+            <h4>የተጠራ ቁጥር</h4>
+            <div id="current-called-number">-</div>
+        </div>
+
+        <!-- የቢንጎ ቦርድ (የ B-I-N-G-O አምዶች ዝርዝር) -->
+        <div class="bingo-board">
+            <div class="board-column"><div class="letter header">B</div><div id="col-B" class="numbers-list"></div></div>
+            <div class="board-column"><div class="letter header">I</div><div id="col-I" class="numbers-list"></div></div>
+            <div class="board-column"><div class="letter header">N</div><div id="col-N" class="numbers-list"></div></div>
+            <div class="board-column"><div class="letter header">G</div><div id="col-G" class="numbers-list"></div></div>
+            <div class="board-column"><div class="letter header">O</div><div id="col-O" class="numbers-list"></div></div>
+        </div>
+
+        <!-- የተጠቃሚው 5x5 ካርቴላዎች ማሳያ -->
+        <h3 class="title">የእርስዎ 5x5 ካርቴላ</h3>
+        <div id="my-cartela-container"></div>
+    </div>
+
+    <!-- 2ኛ. ሌሎች የኒቪጌሽን ስክሪኖች -->
+    <div id="wallet-screen" class="screen"><h3 class="title">የኪስ ቦርሳ (Wallet)</h3></div>
+    <div id="history-screen" class="screen"><h3 class="title">የጨዋታ ታሪክ (History)</h3></div>
+    <div id="profile-screen" class="screen"><h3 class="title">የእኔ ማህደር (Profile)</h3></div>
+
     <nav class="navbar">
-        <button class="nav-item active">Game</button>
-        <button class="nav-item">Wallet</button>
-        <button class="nav-item">History</button>
-        <button class="nav-item">Profile</button>
+        <button class="nav-item active" onclick="switchScreen('game')">Game</button>
+        <button class="nav-item" onclick="switchScreen('wallet')">Wallet</button>
+        <button class="nav-item" onclick="switchScreen('history')">History</button>
+        <button class="nav-item" onclick="switchScreen('profile')">Profile</button>
     </nav>
 
     <script src="app.js"></script>
