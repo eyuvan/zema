@@ -1,154 +1,257 @@
-let selectedCartelas = [];
-let countdownVal = 49;
-let timerInterval = null;
-let gameId = 1;
+let countdownTime = 49;
+let timerId = null;
+let gameLoopId = null;
+let currentGameId = 1;
+let selectedCards = [];
+let calledNumbers = [];
+let isMuted = false;
 
-// ገጾችን ለመቀያየር
-function switchScreen(screenName) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+const cardPool = {};
 
-    if (screenName === 'game') {
-        if (countdownVal > 0) {
-            document.getElementById('selection-screen').classList.add('active');
-        } else {
-            document.getElementById('game-screen').classList.add('active');
-        }
-        document.querySelectorAll('.nav-item')[0].classList.add('active');
-    } else {
-        document.getElementById(${screenName}-screen).classList.add('active');
-        const navIndex = screenName === 'wallet' ? 1 : screenName === 'history' ? 2 : 3;
-        document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+document.addEventListener("DOMContentLoaded", () => {
+    generateCardSelectionGrid();
+    generateScoreboardGrid();
+    preGenerateBingoCards();
+    startCountdown();
+});
+
+// Create selection cells for cards 1 to 600
+function generateCardSelectionGrid() {
+    const grid = document.getElementById("cards-grid");
+    grid.innerHTML = "";
+    for (let i = 1; i <= 600; i++) {
+        const box = document.createElement("div");
+        box.className = "card-box";
+        box.innerText = i;
+        box.onclick = () => selectCard(i, box);
+        grid.appendChild(box);
     }
 }
 
-// 1 - 600 ካርቴላዎችን ወደ grid መፍጠር
-const gridContainer = document.getElementById('cartela-grid');
-for (let i = 1; i <= 600; i++) {
-    const box = document.createElement('div');
-    box.className = 'cartela-box';
-    box.innerText = i;
-    box.onclick = () => toggleCartela(i, box);
-    gridContainer.appendChild(box);
-}
-
-// ካርቴላ መምረጫ ተግባር (ማክሲመም 3)
-function toggleCartela(id, element) {
-    if (selectedCartelas.includes(id)) {
-        selectedCartelas = selectedCartelas.filter(item => item !== id);
-        element.classList.remove('selected');
-    } else {
-        if (selectedCartelas.length >= 3) {
-            alert("ቢበዛ መምረጥ የሚችሉት 3 ካርቴላ ብቻ ነው!");
-            return;
+// Generate the 1-75 visual scoreboard
+function generateScoreboardGrid() {
+    const ranges = [
+        { id: "board-b", start: 1, end: 15 },
+        { id: "board-i", start: 16, end: 30 },
+        { id: "board-n", start: 31, end: 45 },
+        { id: "board-g", start: 46, end: 60 },
+        { id: "board-o", start: 61, end: 75 }
+    ];
+    ranges.forEach(range => {
+        const col = document.getElementById(range.id);
+        col.innerHTML = "";
+        for (let i = range.start; i <= range.end; i++) {
+            const cell = document.createElement("div");
+            cell.className = "board-num-cell";
+            cell.id = `score-cell-${i}`;
+            cell.innerText = i;
+            col.appendChild(cell);
         }
-        selectedCartelas.push(id);
-        element.classList.add('selected');
-    }
-    document.getElementById('selected-count').innerText = selectedCartelas.length;
+    });
 }
 
-// የካውንትዳውን ታይመር መጀመር
-function startTimer() {
-    timerInterval = setInterval(() => {
-        countdownVal--;
-        document.getElementById('countdown').innerText = countdownVal;
-        
-        if (countdownVal <= 0) {
-            clearInterval(timerInterval);
-            goToGameScreen();
+// Seed mathematical matrices for cards catalog
+function preGenerateBingoCards() {
+    for (let c = 1; c <= 600; c++) {
+        cardPool[c] = createBingoMatrix();
+    }
+}
+
+function createBingoMatrix() {
+    const columns = [
+        getRandomNumbers(1, 15, 5),
+        getRandomNumbers(16, 30, 5),
+        getRandomNumbers(31, 45, 5),
+        getRandomNumbers(46, 60, 5),
+        getRandomNumbers(61, 75, 5)
+    ];
+    let matrix = [];
+    for (let r = 0; r < 5; r++) {
+        matrix[r] = [];
+        for (let c = 0; c < 5; c++) {
+            matrix[r][c] = columns[c][r];
+        }
+    }
+    matrix[2][2] = "FREE";
+    return matrix;
+}
+
+function getRandomNumbers(min, max, count) {
+    let arr = [];
+    while (arr.length < count) {
+        let r = Math.floor(Math.random() * (max - min + 1)) + min;
+        if (!arr.includes(r)) arr.push(r);
+    }
+    return arr.sort((a,b) => a-b);
+}
+
+function selectCard(num, element) {
+    if (element.classList.contains("selected")) {
+        element.classList.remove("selected");
+        selectedCards = selectedCards.filter(id => id !== num);
+    } else {
+        if (selectedCards.length >= 3) return;
+        element.classList.add("selected");
+        selectedCards.push(num);
+    }
+}
+
+function startCountdown() {
+    countdownTime = 49;
+    document.getElementById("timer-sec").innerText = countdownTime;
+    timerId = setInterval(() => {
+        countdownTime--;
+        document.getElementById("timer-sec").innerText = countdownTime;
+        if (countdownTime <= 0) {
+            clearInterval(timerId);
+            launchMatchPlay();
         }
     }, 1000);
 }
 
-// ታይመሩ ሲያልቅ ወደ ዋናው ጨዋታ ገጽ ማስተላለፊያ
-function goToGameScreen() {
-    document.getElementById('selection-screen').classList.remove('active');
-    document.getElementById('game-screen').classList.add('active');
+function launchMatchPlay() {
+    // Rule: Hide Stake & Main Wallet items on top header bar when play loop starts
+    document.getElementById("top-stake-box").classList.add("hidden");
+    document.getElementById("top-main-wallet-box").classList.add("hidden");
+
+    document.getElementById("selection-screen").classList.add("hidden");
+    document.getElementById("gameplay-screen").classList.remove("hidden");
     
-    // የጨዋታ መለያ ቁጥር ማሳያ (Game ID format: 0001, 0002...)
-    document.getElementById('game-id').innerText = String(gameId).padStart(4, '0');
+    document.getElementById("game-id-display").innerText = `ID: ${String(currentGameId).padStart(4, '0')}`;
+    document.getElementById("game-id-display").classList.remove("hidden");
     
-    // ለተጠቃሚው የ 5x5 ካርቴላ ማሳያ መፍጠር
-    generateMyCartela();
+    document.getElementById("selected-count-top").innerText = selectedCards.length;
+    document.getElementById("derash-amount").innerText = selectedCards.length * 8;
+    document.getElementById("live-stats").classList.remove("hidden");
     
-    // የቁጥሮች ጥሪ መጀመር
-    startCallingBingoNumbers();
+    renderSelectedCardsOnScreen();
+    calledNumbers = [];
+    startCallingNumbersLoop();
 }
 
-// 5x5 የቢንጎ ካርቴላ ማመንጫ
-function generateMyCartela() {
-    const container = document.getElementById('my-cartela-container');
-    container.innerHTML = ''; 
-    
-    if(selectedCartelas.length === 0) {
-        container.innerHTML = "<p style='text-align:center;'>የተመረጠ ካርቴላ የለም።</p>";
+function renderSelectedCardsOnScreen() {
+    const listContainer = document.getElementById("player-cards-list");
+    listContainer.innerHTML = "";
+    if (selectedCards.length === 0) {
+        listContainer.innerHTML = `<div style="text-align:center;width:100%;color:var(--text-muted);">የተመረጠ ካርቴላ የለም።</div>`;
         return;
     }
-
-    selectedCartelas.forEach(num => {
-        const title = document.createElement('h4');
-        title.innerText = ካርቴላ #${num};
-        container.appendChild(title);
-
-        const grid = document.createElement('div');
-        grid.className = 'bingo-grid';
-
-        // 5x5 ራንደም ቁጥሮችን መሙላት (በህጉ መሠረት)
-        for (let row = 0; row < 5; row++) {
-            for (let col = 0; col < 5; col++) {
-                const cell = document.createElement('div');
-                cell.className = 'bingo-cell';
-                if (row === 2 && col === 2) {
+    selectedCards.forEach(cardId => {
+        const matrix = cardPool[cardId];
+        const cardDiv = document.createElement("div");
+        cardDiv.className = "mini-card";
+        cardDiv.innerHTML = `<div class="card-title-header">ካርቴላ #${cardId}</div>`;
+        const grid = document.createElement("div");
+        grid.className = "grid-5x5";
+        for (let r = 0; r < 5; r++) {
+            for (let c = 0; c < 5; c++) {
+                const val = matrix[r][c];
+                const cell = document.createElement("div");
+                if (val === "FREE") {
+                    cell.className = "cell-5x5 free-space marked";
                     cell.innerText = "FREE";
-                    cell.style.backgroundColor = "#ff9800";
                 } else {
-                    cell.innerText = getRandomBingoNumber(col);
+                    cell.className = "cell-5x5";
+                    cell.id = `cell-${cardId}-${val}`;
+                    cell.innerText = val;
                 }
                 grid.appendChild(cell);
             }
         }
-        container.appendChild(grid);
+        cardDiv.appendChild(grid);
+        listContainer.appendChild(cardDiv);
     });
 }
 
-function getRandomBingoNumber(colIndex) {
-    const min = colIndex * 15 + 1;
-    const max = min + 14;
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-// የቢንጎ ቁጥሮች መጥሪያ ማሽን (በየ 3 ሰከንዱ ቁጥር ይጠራል)
-function startCallingBingoNumbers() {
-    let allNumbers = [];
-    for(let i = 1; i <= 75; i++) allNumbers.push(i);
-    // ማስተርጎም/ማዘዋወር (Shuffle)
-    allNumbers.sort(() => Math.random() - 0.5);
-
-    let callIndex = 0;
-    const callInterval = setInterval(() => {
-        if (callIndex >= allNumbers.length) {
-            clearInterval(callInterval);
-            return;
+function startCallingNumbersLoop() {
+    let pool75 = Array.from({ length: 75 }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+    gameLoopId = setInterval(() => {
+        if (pool75.length === 0) { clearInterval(gameLoopId); return; }
+        
+        let ball = pool75.pop();
+        calledNumbers.push(ball);
+        
+        let letter = "", colorClass = "";
+        if (ball <= 15) { letter = "B"; colorClass = "hit-B"; }
+        else if (ball <= 30) { letter = "I"; colorClass = "hit-I"; }
+        else if (ball <= 45) { letter = "N"; colorClass = "hit-N"; }
+        else if (ball <= 60) { letter = "G"; colorClass = "hit-G"; }
+        else { letter = "O"; colorClass = "hit-O"; }
+        
+        const displayBox = document.getElementById("called-ball-display");
+        displayBox.className = colorClass;
+        displayBox.innerText = `${letter}-${ball}`;
+        
+        document.getElementById(`score-cell-${ball}`).classList.add(colorClass);
+        
+        selectedCards.forEach(cardId => {
+            const cell = document.getElementById(`cell-${cardId}-${ball}`);
+            if (cell) cell.classList.add("marked");
+        });
+        
+        announceNumberSpeech(`${letter} ${ball}`);
+        
+        // Simulating matching engine condition limits for quick presentation sequence
+        if (calledNumbers.length >= 8) { 
+            clearInterval(gameLoopId);
+            triggerWinnerSequence();
         }
-
-        const currentNum = allNumbers[callIndex];
-        let letter = '';
-        if (currentNum <= 15) letter = 'B';
-        else if (currentNum <= 30) letter = 'I';
-        else if (currentNum <= 45) letter = 'N';
-        else if (currentNum <= 60) letter = 'G';
-        else letter = 'O';
-
-        // የላይኛው ትንሽ ስክሪን ላይ ማሳየት
-        document.getElementById('current-called-number').innerText = ${letter} - ${currentNum};
-
-        // በየ አምዱ (Column) ዝርዝር ላይ ቁጥሩን መጨመር
-        const colDiv = document.getElementById(col-${letter});
-        colDiv.innerText +=  ${currentNum};
-
-        callIndex++;
-    }, 3000); // በየ 3 ሰከንዱ አዲስ ቁጥር ይጠራል
+    }, 3500);
 }
 
-// ጨዋታውን በራስ-ሰር አስጀምር
-startTimer();
+// Speech synthesis execution using default text-to-speech voice configs
+function announceNumberSpeech(text) {
+    if (isMuted) return;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = 'en-US';
+    const voices = window.speechSynthesis.getVoices();
+    const femaleVoice = voices.find(v => v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("zira") || v.name.toLowerCase().includes("google us english"));
+    if (femaleVoice) speech.voice = femaleVoice;
+    window.speechSynthesis.speak(speech);
+}
+
+function triggerWinnerSequence() {
+    const names = ["@habesha_king", "@ethio_master", "@chala_win", "@selam_player"];
+    document.getElementById("winner-tg-name").innerText = names[Math.floor(Math.random() * names.length)];
+    document.getElementById("winner-modal").classList.remove("hidden");
+    
+    // Auto reset round loop context exactly 4 seconds later
+    setTimeout(() => { resetAndRestartLobbyLoop(); }, 4000);
+}
+
+function resetAndRestartLobbyLoop() {
+    // Restore header panels
+    document.getElementById("top-stake-box").classList.remove("hidden");
+    document.getElementById("top-main-wallet-box").classList.remove("hidden");
+
+    document.getElementById("winner-modal").classList.add("hidden");
+    document.getElementById("live-stats").classList.add("hidden");
+    document.getElementById("game-id-display").classList.add("hidden");
+    
+    // Total cleanup for true fresh start loop initialization rules
+    selectedCards = []; calledNumbers = []; currentGameId++;
+    
+    document.querySelectorAll(".board-num-cell").forEach(cell => cell.className = "board-num-cell");
+    document.getElementById("called-ball-display").className = "called-ball-empty";
+    document.getElementById("called-ball-display").innerText = "-";
+    
+    generateCardSelectionGrid();
+    document.getElementById("gameplay-screen").classList.add("hidden");
+    document.getElementById("selection-screen").classList.remove("hidden");
+    
+    startCountdown();
+}
+
+// Sound Control switch action event trigger bound inside the Profile element view row
+document.getElementById("btn-sound-toggle").onclick = function() {
+    isMuted = !isMuted;
+    this.innerHTML = isMuted ? `<i class="fa-solid fa-volume-xmark"></i> OFF` : `<i class="fa-solid fa-volume-high"></i> ON`;
+    this.style.borderColor = isMuted ? "#ff4747" : "#00cd6c";
+};
+
+window.switchTab = function(tabId, navBtn) {
+    document.querySelectorAll(".tab-view").forEach(tab => tab.classList.remove("active"));
+    document.querySelectorAll(".nav-item").forEach(btn => btn.classList.remove("active"));
+    document.getElementById(tabId).classList.add("active");
+    navBtn.classList.add("active");
+};
