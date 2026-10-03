@@ -7,8 +7,14 @@ body {
     box-sizing: border-box;
 }
 
-.screen { display: none; padding: 15px; }
-.screen.active { display: block; }
+.screen {
+    display: none;
+    padding: 15px;
+}
+
+.screen.active {
+    display: block;
+}
 
 .top-bar {
     display: flex;
@@ -17,7 +23,7 @@ body {
     padding: 12px;
     border-radius: 8px;
     margin-bottom: 15px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: bold;
     border-bottom: 2px solid #4caf50;
 }
@@ -26,27 +32,27 @@ body {
 .title { text-align: center; color: #4caf50; }
 .selected-count-text { text-align: center; margin-bottom: 10px; color: #aaa; }
 
-/* 🎯 ከ 1 - 600 ያሉት ቁጥሮች መጠናቸው እንዲያንስ የተደረገ አቀማመጥ */
+/* 🎯 ቁጥሮቹ በግልጽ የሚታዩበት እና የሚሸበለልበት Grid */
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(6, 1fr); /* በአንድ መስመር 6 ሳጥን */
-    gap: 6px;
-    max-height: 350px;
-    overflow-y: auto;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    max-height: 380px;
+    overflow-y: scroll;
     padding: 5px;
 }
 
 .cartela-box {
     background-color: #2c2c2c;
-    border: 1px solid #444;
-    border-radius: 4px;
+    border: 2px solid #444;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
     cursor: pointer;
-    height: 45px; /* ያነሰ ቁመት */
-    font-size: 13px; /* ያነሰ የፊደል መጠን */
+    height: 55px; /* ግልጽ ሆኖ የሚታይ መካከለኛ ቁመት */
+    font-size: 16px;
 }
 
 .cartela-box.selected {
@@ -54,50 +60,50 @@ body {
     color: #000;
 }
 
-/* 5ኛ. የቢንጎ መጥሪያ ትንሽ ስክሪን */
+/* የቢንጎ መጥሪያ ትንሽ ስክሪን */
 .live-called-screen {
     background-color: #1a237e;
-    border: 2px solid #3f51b5;
+    border: 3px solid #3f51b5;
     border-radius: 10px;
     text-align: center;
-    padding: 10px;
+    padding: 15px;
     margin-bottom: 15px;
 }
-#current-called-number { font-size: 34px; font-weight: bold; color: #ffeb3b; }
+#current-called-number { font-size: 36px; font-weight: bold; color: #ffeb3b; }
 
-/* 5ኛ. የቢንጎ አምዶች (B-I-N-G-O) ዝርዝር ሰሌዳ */
+/* የቢንጎ ቦርድ አምዶች (B-I-N-G-O) */
 .bingo-board {
     display: flex;
     justify-content: space-between;
     background-color: #1e1e1e;
-    padding: 8px;
+    padding: 10px;
     border-radius: 8px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
-.board-column { width: 18%; text-align: center; background-color: #222; border-radius: 4px; }
-.letter.header { font-size: 18px; font-weight: bold; color: #ff9800; }
-.numbers-list { font-size: 12px; color: #00e676; min-height: 50px; word-break: break-all; padding: 4px; }
+.board-column { width: 18%; text-align: center; background-color: #252525; border-radius: 4px; padding: 5px 0; }
+.letter.header { font-size: 20px; font-weight: bold; color: #ff9800; }
+.numbers-list { font-size: 13px; color: #00e676; min-height: 40px; word-wrap: break-word; }
 
-/* 1ኛ. የ 5x5 ካርቴላ ዲዛይን */
+/* 5x5 ካርቴላ */
 .bingo-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 5px;
+    gap: 6px;
     margin-top: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 .bingo-cell {
     background-color: #2c2c2c;
     border: 1px solid #555;
-    height: 48px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 16px;
 }
 
-/* 2ኛ. Navigation Bar */
-.navbar { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; background-color: #1e1e1e; border-top: 1px solid #333; height: 60px; }
+.navbar { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; background-color: #1e1e1e; border-top: 1px solid #333; height: 65px; }
 .nav-item { flex: 1; background: none; border: none; color: #aaa; font-size: 14px; font-weight: bold; cursor: pointer; }
-.nav-item.active { color: #4caf50; border-top: 3px solid #4caf50; }
+.nav-item.active { color: #4caf50; border-top: 4px solid #4caf50; }
+.info-card { background-color: #1e1e1e; padding: 15px; border-radius: 8px; border-left: 5px solid #4caf50; margin-top: 15px; }

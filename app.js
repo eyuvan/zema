@@ -14,7 +14,7 @@ function switchScreen(screenName) {
         } else {
             document.getElementById('game-screen').classList.add('active');
         }
-        document.querySelectorAll('.nav-item')[0].classList.add('active');
+        document.querySelector('.navbar button:nth-child(1)').classList.add('active');
     } else {
         document.getElementById(${screenName}-screen).classList.add('active');
         const navIndex = screenName === 'wallet' ? 1 : screenName === 'history' ? 2 : 3;
@@ -22,14 +22,16 @@ function switchScreen(screenName) {
     }
 }
 
-// ከ 1 - 600 ካርቴላዎችን መፍጠር
+// ከ 1 - 600 ካርቴላዎችን መፍጠር (እዚህ ጋር ስህተቱ ተስተካክሏል)
 const gridContainer = document.getElementById('cartela-grid');
-for (let i = 1; i <= 600; i++) {
-    const box = document.createElement('div');
-    box.className = 'cartela-box';
-    box.innerText = i;
-    box.onclick = () => toggleCartela(i, box);
-    gridContainer.appendChild(box);
+if (gridContainer) {
+    for (let i = 1; i <= 600; i++) {
+        const box = document.createElement('div');
+        box.className = 'cartela-box';
+        box.innerText = i;
+        box.onclick = () => toggleCartela(i, box);
+        gridContainer.appendChild(box);
+    }
 }
 
 function toggleCartela(id, element) {
@@ -51,7 +53,8 @@ function toggleCartela(id, element) {
 function startTimer() {
     timerInterval = setInterval(() => {
         countdownVal--;
-        document.getElementById('countdown').innerText = countdownVal;
+        const timerElement = document.getElementById('countdown');
+        if (timerElement) timerElement.innerText = countdownVal;
         
         if (countdownVal <= 0) {
             clearInterval(timerInterval);
@@ -60,7 +63,7 @@ function startTimer() {
     }, 1000);
 }
 
-// 4ኛ. ታይመሩ ሲያልቅ ፔጁን ወደ Game Screen ሙሉ ለሙሉ መቀየር
+// ወደ Game Screen መቀየሪያ
 function goToGameScreen() {
     document.getElementById('selection-screen').classList.remove('active');
     document.getElementById('game-screen').classList.add('active');
@@ -70,7 +73,7 @@ function goToGameScreen() {
     startCallingBingoNumbers();
 }
 
-// 1ኛ. የ 5x5 ካርቴላ ማሳያ መፍጠሪያ
+// የ 5x5 ካርቴላ መፍጠሪያ
 function generateMyCartela() {
     const container = document.getElementById('my-cartela-container');
     container.innerHTML = ''; 
@@ -111,13 +114,14 @@ function getRandomBingoNumber(colIndex) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// 5ኛ. የቢንጎ ቁጥሮችን በህጉ መሠረት መጥሪያ እና በየአምዱ መደርደሪያ
+// የቢንጎ ቁጥሮች መጥሪያ (B-1 እስከ O-75)
 function startCallingBingoNumbers() {
-    let allNumbers = Array.from({length: 75}, (_, i) => i + 1);
-    allNumbers.sort(() => Math.random() - 0.5); // ሹፍል
+    let allNumbers = [];
+    for(let i = 1; i <= 75; i++) allNumbers.push(i);
+    allNumbers.sort(() => Math.random() - 0.5);
 	let callIndex = 0;
     const callInterval = setInterval(() => {
-        if (callIndex >= allNumbers.length || countdownVal > 0) {
+        if (callIndex >= allNumbers.length) {
             clearInterval(callInterval);
             return;
         }
@@ -125,15 +129,13 @@ function startCallingBingoNumbers() {
         const currentNum = allNumbers[callIndex];
         let letter = currentNum <= 15 ? 'B' : currentNum <= 30 ? 'I' : currentNum <= 45 ? 'N' : currentNum <= 60 ? 'G' : 'O';
 
-        // በትናንሽ ስክሪን ላይ ማሳያ (B-6, G-75 ወዘተ...)
         document.getElementById('current-called-number').innerText = ${letter} - ${currentNum};
 
-        // በየ አምዱ ስር መዘርዘር (B: 1-15, I: 16-30 ...)
         const colDiv = document.getElementById(col-${letter});
-        colDiv.innerText += ${currentNum} ;
+        if (colDiv) colDiv.innerText +=  ${currentNum};
 
         callIndex++;
-    }, 3000); // በየ 3 ሰከንዱ አዲስ ቁጥር ይጣራል
+    }, 3000);
 }
 
 startTimer();
